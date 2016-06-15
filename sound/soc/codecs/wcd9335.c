@@ -780,6 +780,9 @@ struct tasha_priv {
 	int swr_clk_users;
 	int power_active_ref;
 	int (*zdet_gpio_cb)(struct snd_soc_codec *codec, bool high);
+#if defined(CONFIG_SPEAKER_EXT_PA)
+	int (*spk_ext_pa_cb)(struct snd_soc_codec *codec, int enable);
+#endif
 
 	struct on_demand_supply on_demand_list[ON_DEMAND_SUPPLIES_MAX];
 
@@ -893,6 +896,17 @@ static void tasha_enable_sido_buck(struct snd_soc_codec *codec)
 	usleep_range(100, 110);
 	tasha->resmgr->sido_input_src = SIDO_SOURCE_RCO_BG;
 }
+
+#if defined(CONFIG_SPEAKER_EXT_PA)
+void tasha_spk_ext_pa_cb(int (*spk_ext_pa)(struct snd_soc_codec *codec,
+			int enable), struct snd_soc_codec *codec)
+{
+	struct tasha_priv *tasha = snd_soc_codec_get_drvdata(codec);
+
+	tasha->spk_ext_pa_cb = spk_ext_pa;
+}
+EXPORT_SYMBOL(tasha_spk_ext_pa_cb);
+#endif
 
 static void tasha_cdc_sido_ccl_enable(struct tasha_priv *tasha, bool ccl_flag)
 {
@@ -1393,6 +1407,8 @@ static int tasha_micbias_control(struct snd_soc_codec *codec,
 		break;
 	case MICB_PULLUP_DISABLE:
 		tasha->pullup_ref[micb_index]--;
+		if (tasha->pullup_ref[micb_index] < 0)
+			tasha->pullup_ref[micb_index] = 0;
 		if ((tasha->pullup_ref[micb_index] == 0) &&
 		    (tasha->micb_ref[micb_index] == 0))
 			snd_soc_update_bits(codec, micb_reg, 0xC0, 0x00);
@@ -1448,8 +1464,10 @@ static int tasha_mbhc_request_micbias(struct snd_soc_codec *codec,
 	 * If micbias is requested, make sure that there
 	 * is vote to enable mclk
 	 */
+#ifndef CONFIG_WCD9335_CODEC_MCLK_USE_MSM_GPIO
 	if (req == MICB_ENABLE)
 		tasha_cdc_mclk_enable(codec, true, false);
+#endif
 
 	ret = tasha_micbias_control(codec, micb_num, req, false);
 
@@ -1457,8 +1475,10 @@ static int tasha_mbhc_request_micbias(struct snd_soc_codec *codec,
 	 * Release vote for mclk while requesting for
 	 * micbias disable
 	 */
+#ifndef CONFIG_WCD9335_CODEC_MCLK_USE_MSM_GPIO
 	if (req == MICB_DISABLE)
 		tasha_cdc_mclk_enable(codec, false, false);
+#endif
 
 	return ret;
 }
@@ -3926,6 +3946,9 @@ static int tasha_codec_enable_lineout_pa(struct snd_soc_dapm_widget *w,
 					 int event)
 {
 	struct snd_soc_codec *codec = w->codec;
+#if defined(CONFIG_SPEAKER_EXT_PA)
+	struct tasha_priv *tasha = snd_soc_codec_get_drvdata(codec);
+#endif
 	u16 lineout_vol_reg, lineout_mix_vol_reg;
 	int ret = 0;
 
@@ -3970,8 +3993,16 @@ static int tasha_codec_enable_lineout_pa(struct snd_soc_dapm_widget *w,
 		    !(strcmp(w->name, "ANC LINEOUT2 PA")))
 			ret = tasha_codec_enable_anc(w, kcontrol, event);
 		tasha_codec_override(codec, CLS_AB, event);
+#if defined(CONFIG_SPEAKER_EXT_PA)
+		if (tasha->spk_ext_pa_cb)
+			tasha->spk_ext_pa_cb(codec, true);
+#endif
 		break;
 	case SND_SOC_DAPM_POST_PMD:
+#if defined(CONFIG_SPEAKER_EXT_PA)
+		if (tasha->spk_ext_pa_cb)
+			tasha->spk_ext_pa_cb(codec, false);
+#endif
 		/* 5ms sleep is required after PA is disabled as per
 		 * HW requirement
 		 */
@@ -13111,7 +13142,11 @@ static int tasha_probe(struct platform_device *pdev)
 	tasha->swr_plat_data.handle_irq = tasha_swrm_handle_irq;
 
 	/* Register for Clock */
+#if defined(CONFIG_WCD9335_CODEC_MCLK_USE_MSM_GPIO)
+	wcd_ext_clk = clk_get(tasha->wcd9xxx->dev, "wcd_ap_clk");
+#else
 	wcd_ext_clk = clk_get(tasha->wcd9xxx->dev, "wcd_clk");
+#endif
 	if (IS_ERR(wcd_ext_clk)) {
 		dev_err(tasha->wcd9xxx->dev, "%s: clk get %s failed\n",
 			__func__, "wcd_ext_clk");
