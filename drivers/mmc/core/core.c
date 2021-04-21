@@ -688,7 +688,7 @@ void mmc_start_idle_time_bkops(struct work_struct *work)
 
 	mmc_start_bkops(card, false);
 }
-EXPORT_SYMBOL(mmc_start_idle_time_bkops);
+
 
 static void mmc_wait_done(struct mmc_request *mrq)
 {
