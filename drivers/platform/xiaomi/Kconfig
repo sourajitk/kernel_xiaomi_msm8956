@@ -1,0 +1,18 @@
+# Xiaomi configuration options
+
+config MACH_XIAOMI_MSM8956
+	bool "Xiaomi MSM8956 devices"
+	select ARCH_MSM8916
+	help
+	  Support for Xiaomi MSM8956 variants
+
+menu "Xiaomi MSM8956 board selection"
+
+config MACH_KENZO
+	bool "Xiaomi kenzo board"
+	select MACH_XIAOMI_MSM8956
+	help
+	  Support for Xiaomi Redmi Note 3 (kenzo)
+
+endmenu
+
