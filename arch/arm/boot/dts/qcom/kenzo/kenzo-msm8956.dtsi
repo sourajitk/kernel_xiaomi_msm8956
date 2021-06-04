@@ -1,0 +1,84 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (C) 2021 Sourajit Karmakar <sourajit.karmakar@gmail.com>
+ */
+
+#include "../msm8956.dtsi"
+
+&other_ext_mem {
+	reg = <0x0 0x86300000 0x0 0x0500000>;
+};
+
+&soc {
+	tzapp_mem: tzapp_region@0 {
+		linux,reserve-contiguous-region;
+		linux,reserve-region;
+		linux,remove-completely;
+		reg = <0 0x8DD00000 0 0x1900000>;
+		label = "tzapp_mem";
+	};
+
+	qcom,wdt@b017000 {
+		qcom,bark-time = <20000>;
+		qcom,pet-time = <15000>;
+	};
+
+	/delete-node/ qseecom@85b00000;
+	qcom_seecom: qseecom@8dd00000 {
+		compatible = "qcom,qseecom";
+		reg = <0x8dd00000 0x1900000>;
+		reg-names = "secapp-region";
+		qcom,hlos-num-ce-hw-instances = <1>;
+		qcom,hlos-ce-hw-instance = <0>;
+		qcom,qsee-ce-hw-instance = <0>;
+		qcom,msm-bus,name = "qseecom-noc";
+		qcom,disk-encrypt-pipe-pair = <2>;
+		qcom,support-fde;
+		/delete-property/ appsbl-qseecom-support;
+		qcom,msm-bus,num-cases = <4>;
+		qcom,msm-bus,num-paths = <1>;
+		qcom,support-bus-scaling;
+		qcom,msm-bus,vectors-KBps =
+			<55 512 0 0>,
+			<55 512 0 0>,
+			<55 512 120000 1200000>,
+			<55 512 393600 3936000>;
+		clocks = <&clock_gcc clk_crypto_clk_src>,
+			 <&clock_gcc clk_gcc_crypto_clk>,
+			 <&clock_gcc clk_gcc_crypto_ahb_clk>,
+			 <&clock_gcc clk_gcc_crypto_axi_clk>;
+		clock-names = "core_clk_src", "core_clk",
+				"iface_clk", "bus_clk";
+		qcom,ce-opp-freq = <100000000>;
+	};
+
+};
+
+&ext_codec {
+	qcom,audio-routing =
+		"AIF4 VI", "MCLK",
+		"RX_BIAS", "MCLK",
+		"MADINPUT", "MCLK",
+		"AMIC1", "MIC BIAS1",
+		"MIC BIAS1", "Handset Mic",
+		"AMIC2", "MIC BIAS2",
+		"MIC BIAS2", "Headset Mic",
+		"AMIC3", "MIC BIAS3",
+		"MIC BIAS3", "Secondary Mic";
+	
+	qcom,msm-gpios =
+		"ext_spk_gpio";
+	qcom,pinctrl-names =
+		"spk_ext_pa_act",
+		"spk_ext_pa_sus";
+	pinctrl-names =
+		"spk_ext_pa_act",
+		"spk_ext_pa_sus";
+	pinctrl-0 = <&spk_ext_pa_active>;
+	pinctrl-1 = <&spk_ext_pa_suspend>;
+	qcom,msm-spk-ext-pa = <&msm_gpio 101 0>;
+
+	/delete-property/ qcom,max-aux-codec;
+	/delete-property/ qcom,aux-codec;
+	/delete-property/ qcom,aux-codec-prefix;
+};

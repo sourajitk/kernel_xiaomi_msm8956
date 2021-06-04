@@ -1,5 +1,9 @@
 ifeq ($(CONFIG_OF),y)
 
+ifeq ($(CONFIG_MACH_KENZO),y)
+dtb-$(CONFIG_MACH_KENZO) += kenzo-msm8956-overlay.dtb
+else
+
 dtb-$(CONFIG_ARCH_MSM8974) += msm8974-v1-cdp.dtb \
 	msm8974-v1-fluid.dtb \
 	msm8974-v1-liquid.dtb \
@@ -315,6 +319,8 @@ dtb-$(CONFIG_ARCH_MSM8992) += msm8992-sim.dtb \
 	msm8992-pmi8994-pm8004-cdp.dtb \
 	msm8992-pmi8994-pm8004-mtp.dtb
 dtb-$(CONFIG_ARCH_MDMFERMIUM) += mdmfermium-rumi.dtb
+
+endif #(CONFIG_MACH_KENZO=y)
 
 DTB_NAMES := $(subst $\",,$(CONFIG_BUILD_ARM_APPENDED_DTB_IMAGE_NAMES))
 ifneq ($(DTB_NAMES),)

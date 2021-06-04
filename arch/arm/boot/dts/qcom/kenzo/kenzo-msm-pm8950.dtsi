@@ -1,0 +1,15 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (C) 2021 Sourajit Karmakar <sourajit.karmakar@gmail.com>
+ */
+
+&spmi_bus {
+	qcom,power-on@800 {
+		qcom,pon_1 {
+			qcom,support-reset = <1>;
+			qcom,s1-timer = <5000>;
+			qcom,s2-timer = <1000>;
+			qcom,s2-type = <7>;
+		};
+	};
+};

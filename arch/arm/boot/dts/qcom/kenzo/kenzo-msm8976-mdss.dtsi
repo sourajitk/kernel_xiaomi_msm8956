@@ -1,0 +1,8 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (C) 2021 Sourajit Karmakar <sourajit.karmakar@gmail.com>
+ */
+
+&mdss_fb0 {
+	/delete-property/ qcom,mdss-fb-splash-logo-enabled;
+};

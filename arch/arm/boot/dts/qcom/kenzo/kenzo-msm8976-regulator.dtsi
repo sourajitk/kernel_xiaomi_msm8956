@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (C) 2021 Sourajit Karmakar <sourajit.karmakar@gmail.com>
+ */
+
+&pm8950_l22 {
+	regulator-max-microvolt = <2950000>;
+	qcom,init-voltage = <2950000>;
+};

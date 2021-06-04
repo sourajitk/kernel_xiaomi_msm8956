@@ -1,0 +1,13 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (C) 2021 Sourajit Karmakar <sourajit.karmakar@gmail.com>
+ */
+
+&pmx_mdss {
+	qcom,num-grp-pins = <3>;
+	qcom,pins = <&gp 25>, <&gp 66>, <&gp 108>;
+};
+
+&mdss_dsi0 {
+	qcom,panel-mode-gpio = <&msm_gpio 108 0>;
+};

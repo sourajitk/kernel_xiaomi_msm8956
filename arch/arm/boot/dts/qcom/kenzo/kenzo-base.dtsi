@@ -1,0 +1,16 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (C) 2021 Sourajit Karmakar <sourajit.karmakar@gmail.com>
+ */
+
+#include "kenzo-msm-pm8950.dtsi"
+#include "kenzo-msm8956.dtsi"
+#include "kenzo-msm8976-mdss-panels.dtsi"
+#include "kenzo-msm8976-pinctrl.dtsi"
+#include "kenzo-msm-pmi8950.dtsi"
+#include "kenzo-msm8976-camera-sensor-mtp.dtsi"
+#include "kenzo-msm8976-mdss.dtsi"
+#include "kenzo-msm8976-regulator.dtsi"
+#include "kenzo-msm8956-mtp.dtsi"
+#include "kenzo-msm8976-mdss-mtp.dtsi"
+#include "kenzo-msm8976-mtp.dtsi"
